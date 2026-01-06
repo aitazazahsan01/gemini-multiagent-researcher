@@ -1,8 +1,15 @@
 import time
+
 from ddgs import DDGS
 from ddgs.exceptions import DDGSException
 
+
 def web_search(query: str, max_results: int = 4, retries: int = 3) -> list[dict]:
+    """Free, keyless web search. Returns a list of {title, url, snippet}.
+
+    The DDGS backend is flaky under repeated calls (transient decode/rate-limit
+    errors), so retry a few times with backoff before giving up.
+    """
     last_error: Exception | None = None
     for attempt in range(retries):
         try:
