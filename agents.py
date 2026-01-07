@@ -48,4 +48,11 @@ class PlanOutput(BaseModel):
 
 
 def planner_node(state: ResearchState) -> dict:
-    llm = get_llm(temperature=0.2).with_structured_output(P
+    llm = get_llm(temperature=0.2).with_structured_output(PlanOutput)
+    prompt = (
+        "You are a research planner. Break the following topic into 3-5 focused, "
+        "non-overlapping sub-questions that, if answered well, would let a writer "
+        "produce a thorough report.\n\n"
+        f"Topic: {state['topic']}"
+    )
+    result: PlanOutput = 
