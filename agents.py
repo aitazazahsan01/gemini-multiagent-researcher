@@ -55,4 +55,25 @@ def planner_node(state: ResearchState) -> dict:
         "produce a thorough report.\n\n"
         f"Topic: {state['topic']}"
     )
-    result: PlanOutput = 
+    result: PlanOutput = invoke_with_retry(llm, prompt)
+    return {"plan": result.sub_questions}
+
+
+# ---------------------------------------------------------------------------
+# 2. Human-in-the-loop: review the plan before spending time researching it
+# ---------------------------------------------------------------------------
+
+def human_plan_review_node(state: ResearchState) -> dict:
+    decision = interrupt(
+        {
+            "reason": "review_plan",
+            "topic": state["topic"],
+            "plan": state["plan"],
+            "instructions": (
+                "Reply 'approve' to continue, or type replacement sub-questions "
+                "separated by ';' to override the plan."
+            ),
+        }
+    )
+    if isinstance(decision, str) and decision.strip().lower() != "approve":
+        new_p
