@@ -106,4 +106,8 @@ def researcher_node(state: ResearchState) -> dict:
             {
                 "question": question,
                 "summary": summary,
-                "s
+                "sources": [r["url"] for r in results],
+            }
+        )
+    return {"research_notes": notes}
+
