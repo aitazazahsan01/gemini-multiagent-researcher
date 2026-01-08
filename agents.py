@@ -93,3 +93,10 @@ def researcher_node(state: ResearchState) -> dict:
         results = web_search(question, max_results=4)
         sources_text = "\n\n".join(
             f"[{i + 1}] {r['title']}\n{r['url']}\n{r['snippet']}"
+            for i, r in enumerate(results)
+        )
+        summary_prompt = (
+            "Summarize the key facts relevant to this question, based only on the "
+            "search results below. Cite sources by their [number]. Be concise "
+            "(5-8 sentences).\n\n"
+            f"Questio
