@@ -99,4 +99,11 @@ def researcher_node(state: ResearchState) -> dict:
             "Summarize the key facts relevant to this question, based only on the "
             "search results below. Cite sources by their [number]. Be concise "
             "(5-8 sentences).\n\n"
-            f"Questio
+            f"Question: {question}\n\nSearch results:\n{sources_text}"
+        )
+        summary = invoke_with_retry(llm, summary_prompt).text
+        notes.append(
+            {
+                "question": question,
+                "summary": summary,
+                "s
