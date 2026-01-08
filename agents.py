@@ -76,4 +76,12 @@ def human_plan_review_node(state: ResearchState) -> dict:
         }
     )
     if isinstance(decision, str) and decision.strip().lower() != "approve":
-        new_p
+        new_plan = [q.strip() for q in decision.split(";") if q.strip()]
+        if new_plan:
+            return {"plan": new_plan}
+    return {}
+
+
+# ---------------------------------------------------------------------------
+# 3. Researcher
+# ---------------------------------------------------------------------
