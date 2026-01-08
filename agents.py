@@ -84,4 +84,12 @@ def human_plan_review_node(state: ResearchState) -> dict:
 
 # ---------------------------------------------------------------------------
 # 3. Researcher
-# ---------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+
+def researcher_node(state: ResearchState) -> dict:
+    llm = get_llm(temperature=0.1)
+    notes = []
+    for question in state["plan"]:
+        results = web_search(question, max_results=4)
+        sources_text = "\n\n".join(
+            f"[{i + 1}] {r['title']}\n{r['url']}\n{r['snippet']}"
