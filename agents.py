@@ -114,4 +114,16 @@ def researcher_node(state: ResearchState) -> dict:
 
 # ---------------------------------------------------------------------------
 # 4. Writer
-# ---------------------------------------------------------
+# ---------------------------------------------------------------------------
+
+def writer_node(state: ResearchState) -> dict:
+    llm = get_llm(temperature=0.4)
+    notes_text = "\n\n".join(
+        f"### {n['question']}\n{n['summary']}\nSources: {', '.join(n['sources'])}"
+        for n in state["research_notes"]
+    )
+
+    feedback_block = ""
+    if state.get("critique"):
+        feedback_block += (
+            f"\n\nThe previous draft was critiqued as f
