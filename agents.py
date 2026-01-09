@@ -134,4 +134,6 @@ def writer_node(state: ResearchState) -> dict:
 
     prompt = (
         f"Write a well-structured research report on: {state['topic']}\n\n"
-       
+        "Use the research notes below as your source material. Include a short "
+        "intro, one section per sub-question, and a conclusion. Keep inline "
+        "citations as [n] referencing the source
