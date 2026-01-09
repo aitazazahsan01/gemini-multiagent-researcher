@@ -136,4 +136,5 @@ def writer_node(state: ResearchState) -> dict:
         f"Write a well-structured research report on: {state['topic']}\n\n"
         "Use the research notes below as your source material. Include a short "
         "intro, one section per sub-question, and a conclusion. Keep inline "
-        "citations as [n] referencing the source
+        "citations as [n] referencing the source list, and include a 'Sources' "
+        f"section at the end listing all URLs.{feedback_block}\n\n"
