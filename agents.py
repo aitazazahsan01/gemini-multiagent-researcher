@@ -126,4 +126,12 @@ def writer_node(state: ResearchState) -> dict:
     feedback_block = ""
     if state.get("critique"):
         feedback_block += (
-            f"\n\nThe previous draft was critiqued as f
+            f"\n\nThe previous draft was critiqued as follows. Address every point:\n"
+            f"{state['critique']}"
+        )
+    if state.get("human_feedback"):
+        feedback_block += f"\n\nA human reviewer also said:\n{state['human_feedback']}"
+
+    prompt = (
+        f"Write a well-structured research report on: {state['topic']}\n\n"
+       
