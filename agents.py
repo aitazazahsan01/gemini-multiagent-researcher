@@ -181,4 +181,18 @@ def critic_node(state: ResearchState) -> dict:
 
 # ---------------------------------------------------------------------------
 # 6. Human-in-the-loop: final sign-off before the graph ends
-# --------------------------------------------
+# ---------------------------------------------------------------------------
+
+def human_final_review_node(state: ResearchState) -> dict:
+    decision = interrupt(
+        {
+            "reason": "review_final",
+            "draft": state["draft"],
+            "critic_verdict": "approved" if state["approved"] else "needs revision",
+            "critic_feedback": state["critique"],
+            "instructions": "Reply 'approve' to finish, or type feedback for another revision.",
+        }
+    )
+    if isinstance(decision, str) and decision.strip().lower() != "approve":
+        return {"human_feedback": decision, "approved": False}
+    return {"approved": True}
