@@ -146,4 +146,17 @@ def writer_node(state: ResearchState) -> dict:
 
 # ---------------------------------------------------------------------------
 # 5. Critic (drives the self-correction loop)
-# ------------------------
+# ---------------------------------------------------------------------------
+
+class CritiqueOutput(BaseModel):
+    approved: bool = Field(
+        description="True only if the draft is accurate, complete, well-cited, and needs no further changes"
+    )
+    critique: str = Field(
+        description="Specific, actionable feedback for the writer. Empty string if approved."
+    )
+
+
+def critic_node(state: ResearchState) -> dict:
+    llm = get_llm(temperature=0.0).with_structured_output(CritiqueOutput)
+    notes_text = "\n\
