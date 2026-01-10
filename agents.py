@@ -167,4 +167,18 @@ def critic_node(state: ResearchState) -> dict:
         "notes. Check for: factual consistency with the notes, whether every "
         "sub-question is answered, whether citations are present, and overall "
         "clarity.\n\n"
-        f"Topic: {state['top
+        f"Topic: {state['topic']}\n\n"
+        f"Research notes:\n{notes_text}\n\n"
+        f"Draft:\n{state['draft']}"
+    )
+    result: CritiqueOutput = invoke_with_retry(llm, prompt)
+    return {
+        "approved": result.approved,
+        "critique": result.critique,
+        "revision_count": state.get("revision_count", 0) + 1,
+    }
+
+
+# ---------------------------------------------------------------------------
+# 6. Human-in-the-loop: final sign-off before the graph ends
+# --------------------------------------------
