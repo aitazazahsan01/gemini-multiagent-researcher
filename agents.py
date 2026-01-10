@@ -138,3 +138,12 @@ def writer_node(state: ResearchState) -> dict:
         "intro, one section per sub-question, and a conclusion. Keep inline "
         "citations as [n] referencing the source list, and include a 'Sources' "
         f"section at the end listing all URLs.{feedback_block}\n\n"
+        f"Research notes:\n{notes_text}"
+    )
+    draft = invoke_with_retry(llm, prompt).text
+    return {"draft": draft, "human_feedback": None}
+
+
+# ---------------------------------------------------------------------------
+# 5. Critic (drives the self-correction loop)
+# ------------------------
