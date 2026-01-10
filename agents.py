@@ -159,4 +159,12 @@ class CritiqueOutput(BaseModel):
 
 def critic_node(state: ResearchState) -> dict:
     llm = get_llm(temperature=0.0).with_structured_output(CritiqueOutput)
-    notes_text = "\n\
+    notes_text = "\n\n".join(
+        f"{n['question']}: {n['summary']}" for n in state["research_notes"]
+    )
+    prompt = (
+        "You are a strict editor. Evaluate this draft report against the research "
+        "notes. Check for: factual consistency with the notes, whether every "
+        "sub-question is answered, whether citations are present, and overall "
+        "clarity.\n\n"
+        f"Topic: {state['top
