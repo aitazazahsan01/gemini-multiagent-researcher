@@ -16,4 +16,5 @@ def build_graph():
     builder.add_edge("human_plan_review", "researcher")
     builder.add_edge("researcher", "writer")
     builder.add_edge("writer", "critic")
-    return builder.compile()
+    memory = MemorySaver()
+    return builder.compile(checkpointer=memory)
