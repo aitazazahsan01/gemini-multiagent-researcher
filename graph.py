@@ -29,4 +29,9 @@ def build_graph():
 
     graph.add_node("planner", planner_node)
     graph.add_node("human_plan_review", human_plan_review_node)
-    graph.add_node("researcher", 
+    graph.add_node("researcher", researcher_node)
+    graph.add_node("writer", writer_node)
+    graph.add_node("critic", critic_node)
+    graph.add_node("human_final_review", human_final_review_node)
+
+    graph.add_edge(START, "plann
