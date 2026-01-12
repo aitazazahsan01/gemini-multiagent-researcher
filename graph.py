@@ -34,4 +34,9 @@ def build_graph():
     graph.add_node("critic", critic_node)
     graph.add_node("human_final_review", human_final_review_node)
 
-    graph.add_edge(START, "plann
+    graph.add_edge(START, "planner")
+    graph.add_edge("planner", "human_plan_review")
+    graph.add_edge("human_plan_review", "researcher")
+    graph.add_edge("researcher", "writer")
+    graph.add_edge("writer", "critic")
+    grap
