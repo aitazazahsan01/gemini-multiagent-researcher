@@ -39,4 +39,15 @@ def build_graph():
     graph.add_edge("human_plan_review", "researcher")
     graph.add_edge("researcher", "writer")
     graph.add_edge("writer", "critic")
-    grap
+    graph.add_conditional_edges(
+        "critic",
+        route_after_critic,
+        {"writer": "writer", "human_final_review": "human_final_review"},
+    )
+    graph.add_conditional_edges(
+        "human_final_review",
+        route_after_human_final,
+        {END: END, "writer": "writer"},
+    )
+
+    return graph.compile(checkpointer=MemorySaver())
