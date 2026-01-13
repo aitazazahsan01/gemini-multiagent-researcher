@@ -22,4 +22,14 @@ def handle_interrupt(payload: dict) -> str:
         for i, q in enumerate(payload["plan"], 1):
             console.print(f"  {i}. {q}")
     elif payload["reason"] == "review_final":
-        console.print(Markdown(payload["draft"])
+        console.print(Markdown(payload["draft"]))
+        console.print(f"\n[dim]Critic verdict: {payload['critic_verdict']}[/dim]")
+        if payload["critic_feedback"]:
+            console.print(f"[dim]Critic feedback: {payload['critic_feedback']}[/dim]")
+    console.print(f"\n[italic]{payload['instructions']}[/italic]")
+    return Prompt.ask("Your response")
+
+
+def run() -> None:
+    app = build_graph()
+    topic = Prompt.ask("[bold cyan]Res
