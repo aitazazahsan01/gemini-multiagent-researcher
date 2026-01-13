@@ -32,4 +32,20 @@ def handle_interrupt(payload: dict) -> str:
 
 def run() -> None:
     app = build_graph()
-    topic = Prompt.ask("[bold cyan]Res
+    topic = Prompt.ask("[bold cyan]Research topic")
+    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+
+    graph_input = {
+        "topic": topic,
+        "plan": [],
+        "research_notes": [],
+        "draft": "",
+        "critique": "",
+        "approved": False,
+        "revision_count": 0,
+        "human_feedback": None,
+    }
+
+    while True:
+        result = app.invoke(graph_input, config=config)
+        interru
