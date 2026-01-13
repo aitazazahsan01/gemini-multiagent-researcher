@@ -48,4 +48,16 @@ def run() -> None:
 
     while True:
         result = app.invoke(graph_input, config=config)
-        interru
+        interrupts = result.get("__interrupt__")
+        if not interrupts:
+            break
+        user_reply = handle_interrupt(interrupts[0].value)
+        graph_input = Command(resume=user_reply)
+
+    console.rule("[green]Final Report")
+    console.print(Markdown(result["draft"]))
+    console.print(f"\n[dim]Total revisions: {result['revision_count']}[/dim]")
+
+
+if __name__ == "__main__":
+    run()
