@@ -31,4 +31,21 @@ def run_stream(graph_input, thread_id: str):
                 yield sse("interrupt", payload)
                 return
             for node_name, partial_state in chunk.items():
-    
+                yield sse("node", {"node": node_name, "state": partial_state or {}})
+        snapshot = graph.get_state(config)
+        yield sse("done", {"state": snapshot.values})
+    except Exception as e:  # noqa: BLE001
+        yield sse("error", {"message": str(e)})
+
+
+@app.get("/api/stream/start")
+def stream_start(topic: str = Query(..., min_length=3, max_length=300)):
+    thread_id = str(uuid.uuid4())
+    graph_input = {
+        "topic": topic,
+        "plan": [],
+        "research_notes": [],
+        "draft": "",
+        "critique": "",
+        "approved": False,
+        "revision_count": 
