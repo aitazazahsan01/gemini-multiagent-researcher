@@ -48,4 +48,20 @@ def stream_start(topic: str = Query(..., min_length=3, max_length=300)):
         "draft": "",
         "critique": "",
         "approved": False,
-        "revision_count": 
+        "revision_count": 0,
+        "human_feedback": None,
+    }
+    return StreamingResponse(
+        run_stream(graph_input, thread_id), media_type="text/event-stream"
+    )
+
+
+@app.get("/api/stream/resume")
+def stream_resume(thread_id: str, value: str = Query(..., max_length=2000)):
+    return StreamingResponse(
+        run_stream(Command(resume=value), thread_id), media_type="text/event-stream"
+    )
+
+
+WEB_DIR = Path(__file__).resolve().parent / "web"
+app.mount("/", StaticFiles(directory=WEB_DIR, html=True), name="web")
