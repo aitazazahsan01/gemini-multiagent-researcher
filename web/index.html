@@ -1,2 +1,44 @@
-<!DOCTYPE html>
-<html><head><title>Wire Desk</title></head><body></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wire Desk</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+
+  <header class="masthead">
+    <div class="masthead-brand">
+      <span class="wordmark">Wire Desk</span>
+      <span class="tagline">an assignment, wired to a filed report</span>
+    </div>
+    <div class="masthead-meta">
+      <span class="dispatch-id" id="dispatchId"></span>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme" title="Toggle color theme">◐</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="rail" aria-label="Pipeline stages">
+      <ol class="rail-steps" id="railSteps">
+        <li class="rail-step" data-stage="assignment" data-status="active"><span class="rail-dot"></span><span class="rail-label">Assignment</span></li>
+        <li class="rail-step" data-stage="brief-review" data-status="pending"><span class="rail-dot"></span><span class="rail-label">Brief review</span></li>
+        <li class="rail-step" data-stage="wire-feed" data-status="pending"><span class="rail-dot"></span><span class="rail-label">Wire feed</span></li>
+        <li class="rail-step" data-stage="manuscript" data-status="pending"><span class="rail-dot"></span><span class="rail-label">Manuscript</span></li>
+        <li class="rail-step" data-stage="copy-desk" data-status="pending"><span class="rail-dot"></span><span class="rail-label">Copy desk</span></li>
+        <li class="rail-step" data-stage="final-review" data-status="pending"><span class="rail-dot"></span><span class="rail-label">Final review</span></li>
+        <li class="rail-step" data-stage="filed" data-status="pending"><span class="rail-dot"></span><span class="rail-label">Filed</span></li>
+      </ol>
+    </nav>
+
+    <main class="stage" id="stage"></main>
+  </div>
+
+  <footer class="foot" id="foot">Wire Desk · planner, researcher, writer &amp; critic agents on a LangGraph wire</footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
