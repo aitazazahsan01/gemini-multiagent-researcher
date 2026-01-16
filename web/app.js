@@ -140,3 +140,106 @@
     flushPara();
     closeList();
     return html;
+  }
+
+  // ------------------------------------------------------------------
+  // Panels
+  // ------------------------------------------------------------------
+
+  function renderBrief() {
+    setRail("assignment", "active");
+    dispatchIdEl.textContent = "";
+    stage.innerHTML = `
+      <div class="panel">
+        <div class="panel-eyebrow">New assignment</div>
+        <h1>What should the desk look into?</h1>
+        <p class="lede">A planner agent will scope it into sub-questions, a researcher will wire out
+          for sources, a writer will draft the report, and a critic will push back before anything
+          gets filed. You'll sign off twice along the way.</p>
+        <div class="card">
+          <form id="briefForm">
+            <div class="field">
+              <label for="topicInput">Assignment topic</label>
+              <textarea id="topicInput" rows="3" placeholder="e.g. The environmental impact of lithium-ion battery recycling" required minlength="3" maxlength="300"></textarea>
+            </div>
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">Open assignment</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    document.getElementById("briefForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const topic = document.getElementById("topicInput").value.trim();
+      if (topic.length < 3) return;
+      startAssignment(topic);
+    });
+    document.getElementById("topicInput").focus();
+  }
+
+  function renderWorking(eyebrow, title, lede, extraHtml) {
+    stage.innerHTML = `
+      <div class="panel">
+        <div class="panel-eyebrow">${eyebrow}</div>
+        <h1>${title}</h1>
+        ${lede ? `<p class="lede">${lede}</p>` : ""}
+        <div class="working">
+          <span class="dot-flicker"><span></span><span></span><span></span></span>
+          <span>Working…</span>
+        </div>
+        ${extraHtml || ""}
+      </div>
+    `;
+  }
+
+  function renderWireFeedWorking(plan, doneSet) {
+    doneSet = doneSet || new Set();
+    const items = plan
+      .map((q, i) => {
+        const isDone = doneSet.has(i);
+        return `<li data-status="${isDone ? "done" : "pending"}">
+          <span class="glyph">${isDone ? "✓" : "·"}</span>
+          <span>${escapeHtml(q)}</span>
+        </li>`;
+      })
+      .join("");
+    renderWorking(
+      "Wire feed",
+      "Correspondents are on the wire",
+      "Each sub-question gets its own search pass, summarized with inline citations.",
+      `<ul class="feed-log">${items}</ul>`
+    );
+  }
+
+  function renderPlanReview(payload) {
+    setRail("brief-review", "waiting");
+    state.plan = payload.plan;
+    state.topic = payload.topic;
+    const items = payload.plan
+      .map((q) => `<li>${escapeHtml(q)}</li>`)
+      .join("");
+    stage.innerHTML = `
+      <div class="panel">
+        <div class="panel-eyebrow">Brief review · awaiting you</div>
+        <h1>Does this brief cover the assignment?</h1>
+        <p class="lede">${escapeHtml(payload.topic)}</p>
+        <div class="card">
+          <ol class="question-list">${items}</ol>
+        </div>
+        <div class="card" id="editCard" style="display:none;">
+          <div class="field">
+            <label for="editPlan">Replace the brief (one sub-question per line)</label>
+            <textarea id="editPlan" rows="5">${payload.plan.join("\n")}</textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="approvePlan">Approve brief</button>
+          <button class="btn btn-ghost" id="editPlanToggle">Rewrite brief</button>
+          <button class="btn btn-primary" id="submitPlan" style="display:none;">Send rewritten brief</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("approvePlan").addEventListener("click", () => resumeAssignment("approve"));
+    document.getElementById("editPlanToggle").addEventListener("click", () => {
+      document.getElementById("editCard").
