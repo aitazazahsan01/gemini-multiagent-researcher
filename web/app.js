@@ -242,4 +242,96 @@
     `;
     document.getElementById("approvePlan").addEventListener("click", () => resumeAssignment("approve"));
     document.getElementById("editPlanToggle").addEventListener("click", () => {
-      document.getElementById("editCard").
+      document.getElementById("editCard").style.display = "block";
+      document.getElementById("editPlanToggle").style.display = "none";
+      document.getElementById("submitPlan").style.display = "inline-block";
+    });
+    document.getElementById("submitPlan").addEventListener("click", () => {
+      const lines = document
+        .getElementById("editPlan")
+        .value.split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+      resumeAssignment(lines.join("; "));
+    });
+  }
+
+  function renderManuscriptWorking(reason) {
+    setRail("manuscript", "active");
+    const title = state.revisionCount > 0 ? `Redrafting — draft no. ${state.revisionCount + 1}` : "The draft desk is composing";
+    renderWorking("Manuscript", title, reason || "Synthesizing the wire feed into a cited report.");
+  }
+
+  function renderCopyDeskWorking() {
+    setRail("copy-desk", "active");
+    renderWorking("Copy desk", "Under the red pen", "Checking the draft against the wire feed for accuracy, coverage, and citations.");
+  }
+
+  function renderFinalReview(payload) {
+    setRail("final-review", "waiting");
+    const verdictPill =
+      payload.critic_verdict === "approved"
+        ? `<span class="pill pill-success">Copy desk: approved</span>`
+        : `<span class="pill pill-critical">Copy desk: revision cap reached</span>`;
+    const critiqueBlock = payload.critic_feedback
+      ? `<div class="critique-note"><strong>Copy desk notes:</strong> ${escapeHtml(payload.critic_feedback)}</div>`
+      : "";
+    stage.innerHTML = `
+      <div class="panel" style="max-width:820px;">
+        <div class="panel-eyebrow">Final review · awaiting you</div>
+        <h1>Ready to file?</h1>
+        <div style="margin-bottom:1rem;">${verdictPill} <span class="revision-badge">draft no. ${state.revisionCount + 1}</span></div>
+        ${critiqueBlock}
+        <div class="manuscript-wrap">
+          <div class="manuscript">${mdToHtml(payload.draft)}</div>
+        </div>
+        <div class="card">
+          <div class="field">
+            <label for="finalFeedback">Feedback for another pass (optional — leave blank to file as-is)</label>
+            <textarea id="finalFeedback" rows="3" placeholder="e.g. expand the section on regulatory frameworks"></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="approveFinal">File report</button>
+          <button class="btn btn-ghost" id="sendFeedback">Send back for another pass</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("approveFinal").addEventListener("click", () => resumeAssignment("approve"));
+    document.getElementById("sendFeedback").addEventListener("click", () => {
+      const fb = document.getElementById("finalFeedback").value.trim();
+      if (!fb) return;
+      resumeAssignment(fb);
+    });
+  }
+
+  function renderFiled(finalState) {
+    setRail("filed", "done");
+    const blob = new Blob([finalState.draft], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    stage.innerHTML = `
+      <div class="panel" style="max-width:820px;">
+        <div class="panel-eyebrow">Filed</div>
+        <h1>Report filed</h1>
+        <div class="filed-note">Approved after ${finalState.revision_count} revision${finalState.revision_count === 1 ? "" : "s"}.</div>
+        <div class="manuscript-wrap">
+          <div class="manuscript">${mdToHtml(finalState.draft)}</div>
+        </div>
+        <div class="actions">
+          <a class="btn btn-primary" href="${url}" download="report.md">Download manuscript (.md)</a>
+          <button class="btn btn-ghost" id="newAssignment">Start a new assignment</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("newAssignment").addEventListener("click", () => {
+      state.revisionCount = 0;
+      state.threadId = null;
+      renderBrief();
+    });
+  }
+
+  function renderError(message) {
+    stage.innerHTML = `
+      <div class="panel">
+        <div class="panel-eyebrow">Wire down</div>
+        <h1>Something b
