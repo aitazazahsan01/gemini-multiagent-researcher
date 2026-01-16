@@ -334,4 +334,119 @@
     stage.innerHTML = `
       <div class="panel">
         <div class="panel-eyebrow">Wire down</div>
-        <h1>Something b
+        <h1>Something broke on the desk</h1>
+        <div class="error-note">${escapeHtml(message)}</div>
+        <div class="actions">
+          <button class="btn btn-primary" id="retryBtn">Start over</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("retryBtn").addEventListener("click", renderBrief);
+  }
+
+  // ------------------------------------------------------------------
+  // Streaming
+  // ------------------------------------------------------------------
+
+  function closeStream() {
+    if (state.es) {
+      state.es.close();
+      state.es = null;
+    }
+  }
+
+  function wireEvents(es) {
+    es.addEventListener("session", (e) => {
+      const data = JSON.parse(e.data);
+      state.threadId = data.thread_id;
+      dispatchIdEl.textContent = `NO. ${data.thread_id.slice(0, 8).toUpperCase()}`;
+    });
+
+    es.addEventListener("node", (e) => {
+      const { node, state: partial } = JSON.parse(e.data);
+      handleNodeEvent(node, partial);
+    });
+
+    es.addEventListener("interrupt", (e) => {
+      const payload = JSON.parse(e.data);
+      closeStream();
+      if (payload.reason === "review_plan") renderPlanReview(payload);
+      else if (payload.reason === "review_final") renderFinalReview(payload);
+    });
+
+    es.addEventListener("done", (e) => {
+      const { state: finalState } = JSON.parse(e.data);
+      closeStream();
+      renderFiled(finalState);
+    });
+
+    es.addEventListener("error", (e) => {
+      closeStream();
+      let message = "The connection to the desk was lost.";
+      if (e.data) {
+        try {
+          message = JSON.parse(e.data).message || message;
+        } catch (_) {
+          /* keep default */
+        }
+      }
+      renderError(message);
+    });
+
+    es.onerror = () => {
+      if (state.es) {
+        closeStream();
+        renderError("Lost connection to the Wire Desk server. Is it still running?");
+      }
+    };
+  }
+
+  function handleNodeEvent(node, partial) {
+    partial = partial || {};
+    if (node === "planner") {
+      state.plan = partial.plan || state.plan;
+      setRail("brief-review", "active");
+    } else if (node === "human_plan_review") {
+      if (partial.plan) state.plan = partial.plan;
+      renderWireFeedWorking(state.plan);
+    } else if (node === "researcher") {
+      const done = new Set(state.plan.map((_, i) => i));
+      renderWireFeedWorking(state.plan, done);
+      setTimeout(() => renderManuscriptWorking(), 500);
+    } else if (node === "writer") {
+      setRail("copy-desk", "active");
+      renderCopyDeskWorking();
+    } else if (node === "critic") {
+      state.revisionCount = partial.revision_count != null ? partial.revision_count - 1 : state.revisionCount;
+      if (!partial.approved) {
+        renderManuscriptWorking("The copy desk sent it back — redrafting with their notes.");
+      }
+    } else if (node === "human_final_review") {
+      if (partial.approved === false) {
+        state.revisionCount += 1;
+        renderManuscriptWorking("Redrafting per your feedback.");
+      }
+    }
+  }
+
+  function startAssignment(topic) {
+    setRail("assignment", "active");
+    renderWorking("Assignment", "The assignment desk is scoping the story", `“${escapeHtml(topic)}”`);
+    closeStream();
+    const url = `/api/stream/start?topic=${encodeURIComponent(topic)}`;
+    const es = new EventSource(url);
+    state.es = es;
+    wireEvents(es);
+  }
+
+  function resumeAssignment(value) {
+    if (!state.threadId) return;
+    closeStream();
+    const url = `/api/stream/resume?thread_id=${encodeURIComponent(state.threadId)}&value=${encodeURIComponent(value)}`;
+    const es = new EventSource(url);
+    state.es = es;
+    wireEvents(es);
+  }
+
+  renderBrief();
+})();
