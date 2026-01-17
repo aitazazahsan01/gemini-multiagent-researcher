@@ -27,5 +27,3 @@ def web_search(query: str, max_results: int = 4, retries: int = 3) -> list[dict]
             if attempt < retries - 1:
                 time.sleep(1.5 * (attempt + 1))
     raise last_error
-
-# Verified search response helper
